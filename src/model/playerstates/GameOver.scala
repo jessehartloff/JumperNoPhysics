@@ -18,8 +18,6 @@ class GameOver(player: Player) extends PlayerState(player) {
 
   override def platformCollision(): Unit = {}
 
-//  override def noPlatformCollision(): Unit = {}
-
   override def isAlive: Boolean = {
     false
   }

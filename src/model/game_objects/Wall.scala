@@ -13,7 +13,6 @@ class Wall(location: PhysicsVector, dimensions: PhysicsVector) extends JumperObj
     }else if(face == Face.positiveX){
       otherObject.velocity.x = 0.0
       otherObject.location.x = this.location.x + this.dimensions.x
-
     }
   }
 

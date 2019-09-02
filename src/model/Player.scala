@@ -60,17 +60,9 @@ class Player(playerLocation: PhysicsVector,
     this.state.update(dt)
   }
 
-  def platformCollision(): Unit = {
+  override def onGround(): Unit = {
     this.state.platformCollision()
   }
-
-  override def onGround(): Unit = {
-    this.platformCollision()
-  }
-
-//  def noPlatformCollision(): Unit = {
-//    this.state.noPlatformCollision()
-//  }
 
   def isAlive: Boolean = {
     this.state.isAlive
@@ -90,7 +82,6 @@ class Player(playerLocation: PhysicsVector,
     this.velocity.x = this.walkingSpeed
   }
 
-
   // Adjust to air speed when in air. Only applies if the direction is changed mid air
   def moveLeftMidAir(): Unit = {
     this.velocity.x = this.velocity.x.min(-this.airSpeed)
@@ -99,7 +90,6 @@ class Player(playerLocation: PhysicsVector,
   def moveRightMidAir(): Unit = {
     this.velocity.x = this.velocity.x.max(this.airSpeed)
   }
-
 
   def stop(): Unit = {
     this.velocity.x = 0.0

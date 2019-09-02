@@ -10,10 +10,11 @@ class Game {
 
   val gridWidth: Double = 15
   val gridHeight: Double = 20
+
   val playerSize: Double = 0.3
 
-  var killLine: Double = -0.1
-
+  // Initial kill line is just below the ground. With proper ground physics, no player will hit this line
+  var killLine: Double = -0.0001
 
   val minPlatformWidth = 1.0
   val maxPlatformWidth = 6.0
@@ -22,9 +23,7 @@ class Game {
   val gapProbability = 0.8
   val platformThickness = 0.1
 
-  var staticObjects: List[JumperObject] = List(
-    new Platform(new PhysicsVector(0.0, -1.0, 0.0), new PhysicsVector(gridWidth, 2.0, platformThickness))
-  )
+  var staticObjects: List[JumperObject] = List()
 
   var lastLevelGenerated = 0
 
@@ -32,6 +31,8 @@ class Game {
   var skipped = 0
   var maxConsecutiveSkips = 2
 
+  // Generates all the platforms up to the given level when called. This allows platforms to be generated
+  // off screen as a player climbs higher
   def generateUntilLevel(levelStop: Int) {
 
     val leftWall = new Wall(new PhysicsVector(0.0, -1.0, lastLevelGenerated), new PhysicsVector(platformThickness, 2.0, levelStop))
@@ -39,43 +40,39 @@ class Game {
     staticObjects = leftWall :: staticObjects
     staticObjects = rightWall :: staticObjects
 
-      for (level <- lastLevelGenerated + 1 to levelStop) {
-        var currentRow = if (skipped < maxConsecutiveSkips && Math.random() < probabilityOfNoPlatforms) {
-          skipped += 1
-          gridWidth
-        } else {
-          skipped = 0
-          1.0
-        }
-        while (currentRow < gridWidth - 3) {
-          if (Math.random() < gapProbability) {
-            currentRow += Math.random() * maxPlatformGaps
-          }
-          val platformWidth = minPlatformWidth.max(Math.random() * maxPlatformWidth)
-
-          //                                                          start, end
-          //        val newPlatform = new Platform(new PhysicsVector(currentRow, 0, level), new PhysicsVector((gridWidth - 1).min(currentRow + platformWidth), 0, level))
-          val newPlatform = new Platform(new PhysicsVector(currentRow, -1.0, level - platformThickness), new PhysicsVector((gridWidth - 1).min(currentRow + platformWidth), 2.0, platformThickness))
-          currentRow += platformWidth + 1.0
-          staticObjects = newPlatform :: staticObjects
-          world.staticObjects = staticObjects
-        }
+    for (level <- lastLevelGenerated + 1 to levelStop) {
+      var currentRow = if (skipped < maxConsecutiveSkips && Math.random() < probabilityOfNoPlatforms) {
+        skipped += 1
+        gridWidth
+      } else {
+        skipped = 0
+        1.0
       }
+      while (currentRow < gridWidth - 3) {
+        if (Math.random() < gapProbability) {
+          currentRow += Math.random() * maxPlatformGaps
+        }
+        val platformWidth = minPlatformWidth.max(Math.random() * maxPlatformWidth)
+
+        val newPlatform = new Platform(new PhysicsVector(currentRow, -1.0, level - platformThickness), new PhysicsVector((gridWidth - 1).min(currentRow + platformWidth), 2.0, platformThickness))
+        currentRow += platformWidth + 1.0
+        staticObjects = newPlatform :: staticObjects
+        world.staticObjects = staticObjects
+      }
+    }
     lastLevelGenerated = levelStop
   }
-
-//  world.staticObjects
 
   generateUntilLevel(gridHeight.toInt - 5)
 
   val player1 = new Player(
-    new PhysicsVector(gridWidth / 3.0, 0, platformThickness),
-    new PhysicsVector(0.3, 0.3, 0.3)
+    new PhysicsVector(gridWidth / 3.0, 0, 0.0),
+    new PhysicsVector(playerSize, playerSize, playerSize)
   )
 
   val player2 = new Player(
-    new PhysicsVector(gridWidth * 2.0 / 3.0, 0, platformThickness),
-    new PhysicsVector(0.3, 0.3, 0.3)
+    new PhysicsVector(gridWidth * 2.0 / 3.0, 0, 0.0),
+    new PhysicsVector(playerSize, playerSize, playerSize)
   )
 
   world.dynamicObjects = List(player1, player2)
@@ -93,7 +90,7 @@ class Game {
     if (player.location.z < killLine && player.isAlive) {
       player.state = new GameOver(player1)
 
-      // Could add game states and transition to an EndGame state
+      // Could add game states and transition to an EndGame state. For now, just print that the player fell
       println(name + " fell")
     }
   }
