@@ -51,7 +51,7 @@ class GameObject(var location: PhysicsVector, var dimensions: PhysicsVector) {
     * @param face Indicates with which face of the object collided
     */
   def collideWithDynamicObject(otherObject: DynamicObject, face: Integer): Unit = {
-    this.collideWithDynamicObjectCalled = false
+    this.collideWithDynamicObjectCalled = true
     this.otherObject = otherObject
     this.face = face
   }
