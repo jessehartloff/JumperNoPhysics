@@ -25,7 +25,7 @@ class GameObject(var location: PhysicsVector, var dimensions: PhysicsVector) {
     * for collisions with dynamic objects, use these variables to check if the collideWithDynamicObject
     * method was properly called
     */
-  var collideWithDynamicObjectCalled: Boolean = true
+  var collideWithDynamicObjectCalled: Boolean = false
   var otherObject: DynamicObject = _
   var face: Integer = -1
 
